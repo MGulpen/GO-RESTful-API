@@ -21,7 +21,8 @@ type CarsysResponse struct {
 
 func main() {
 	http.HandleFunc("/", rootHandler)
-	http.HandleFunc("/carsys/current-version", carsysCurrentVersionHandler)
+	http.HandleFunc("/carsys/current-version", carsysCurrentVersion)
+	http.HandleFunc("/objects/vehicle", vehicleHandler)
 	http.ListenAndServe(":12345", nil)
 }
 
@@ -32,7 +33,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 //carsysCurrentVersionHandler presents the date/time stamp from http://nl.carsys.online/version.json
-func carsysCurrentVersionHandler(w http.ResponseWriter, r *http.Request) {
+func carsysCurrentVersion(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.Get("http://nl.carsys.online/version.json")
 	if err != nil {
 		// handle error
@@ -60,13 +61,66 @@ func carsysCurrentVersionHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, carsysResponse.BuildDate)
 }
 
-func getVehicleHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World\n")
+func vehicleHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		// add validator if json file is correct.
+		if true {
+			// create new vehicle
+			createVehicle(w, r)
+		} else {
+			//show message couldn't create new vehicle.
+		}
+
+	case "GET":
+		if true {
+			// use in if:a validator to check for valid car sign ( a func that checks with regex and then return true or false)
+
+			//use function for retreiving vehicle by car lisence plate.
+			getVehicle(w, r)
+		} else {
+			//use function to return all vehicles.
+			getVehicles(w, r)
+		}
+	case "PUT":
+		// add validator if json file is correct. and response from db is not null with licenseplate.
+		if true {
+			// update existing  vehicle
+			updateVehicle(w, r)
+		} else {
+			//show message couldn't update vehicle. maybe validator message?
+		}
+
+	case "DELETE":
+		// add validator if json file is correct.
+		if true {
+			// delete new vehicle
+			deleteVehicle(w, r)
+
+		} else {
+			//show message couldn't delete vehicle.
+		}
+	default:
+		fmt.Fprintf(w, "Error, invalid request method - only supporting: GET, POST, PUT and DELETE")
+	}
 }
 
-func postVehicleHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World\n")
+func getVehicle(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Single Vehicle\n")
 }
-func deleteVehicleHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World\n")
+
+func getVehicles(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Multiple Vehicles\n")
+}
+
+func createVehicle(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Created new vehicle\n")
+}
+
+func updateVehicle(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Updated vehicle\n")
+}
+
+func deleteVehicle(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Deleted vehicle\n")
 }
