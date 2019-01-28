@@ -27,10 +27,8 @@ func main() {
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	t, _ := template.ParseFiles("GO-RESTful-API/view/index.html")
+	t, _ := template.ParseFiles("view/index.html")
 	t.Execute(w, nil)
-	//fmt.Fprint(w, "view/index.html")
-
 }
 
 //carsysCurrentVersionHandler presents the date/time stamp from http://nl.carsys.online/version.json
