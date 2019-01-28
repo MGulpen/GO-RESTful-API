@@ -6,6 +6,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 )
@@ -25,7 +26,11 @@ func main() {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World\n")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	t, _ := template.ParseFiles("GO-RESTful-API/view/index.html")
+	t.Execute(w, nil)
+	//fmt.Fprint(w, "view/index.html")
+
 }
 
 //carsysCurrentVersionHandler presents the date/time stamp from http://nl.carsys.online/version.json
@@ -55,4 +60,15 @@ func carsysCurrentVersionHandler(w http.ResponseWriter, r *http.Request) {
 
 	//print the date/time stamp in the browser.
 	fmt.Fprintf(w, carsysResponse.BuildDate)
+}
+
+func getVehicleHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello World\n")
+}
+
+func postVehicleHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello World\n")
+}
+func deleteVehicleHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello World\n")
 }
