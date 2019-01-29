@@ -4,11 +4,14 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 //CarsysResponse is a struct for the json obj from http://nl.carsys.online/version.json
@@ -19,11 +22,64 @@ type CarsysResponse struct {
 	BuildNumber     string `json:"Build number"`
 }
 
+//Cars struct is for db query
+type Cars struct {
+	LicensePlate  string
+	Brand         string
+	Model         string
+	BuildDate     string
+	OdometerValue uint
+	OdometerType  string
+	Transmission  string
+	EngineType    string
+	Retired       string
+}
+
 func main() {
+	db, err := sql.Open("mysql", "root:1143@tcp(localhost:3306)/vehicle_db")
+	if err != nil {
+		panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
+	}
+	defer db.Close()
+
+	q := "SELECT * FROM cars"
+	rows, err := db.Query(q)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer rows.Close()
+
+	var cars Cars //maybe creatind a slice array to stack the results from the database.
+
+	for rows.Next() {
+
+		err := rows.Scan(
+			&cars.LicensePlate,
+			&cars.Brand,
+			&cars.Model,
+			&cars.BuildDate,
+			&cars.OdometerValue,
+			&cars.OdometerType,
+			&cars.Transmission,
+			&cars.EngineType,
+			&cars.Retired)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		fmt.Println(cars.LicensePlate)
+	}
+	// Open doesn't open a connection. Validate DSN data:
+	err = db.Ping()
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/carsys/current-version", carsysCurrentVersion)
 	http.HandleFunc("/objects/vehicle", vehicleHandler)
 	http.ListenAndServe(":12345", nil)
+
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -101,7 +157,7 @@ func vehicleHandler(w http.ResponseWriter, r *http.Request) {
 			//show message couldn't delete vehicle.
 		}
 	default:
-		fmt.Fprintf(w, "Error, invalid request method - only supporting: GET, POST, PUT and DELETE")
+		http.Error(w, "Error, invalid request method - only supporting: GET, POST, PUT and DELETE", http.StatusNotImplemented)
 	}
 }
 
