@@ -7,7 +7,7 @@ CREATE TABLE cars (
     brand VARCHAR(255) NOT NULL,
     model VARCHAR(255) NOT NULL,
     build_date DATE NOT NULL,
-    odometer_value INT UNSIGNED NOT NULL DEFAULT (0),
+    odometer_value INT UNSIGNED NOT NULL DEFAULT 0,
     odometer_type ENUM('miles', 'kilometers') NOT NULL,
     transmission ENUM('automatic', 'manual') NOT NULL,
     engine_type VARCHAR(255) NOT NULL,
