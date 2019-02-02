@@ -4,7 +4,10 @@ package handler
 // vehicleFactory "GO-RESTful-API/model/vehicle/factory"
 // vehicleRepository "GO-RESTful-API/model/vehicle/repository"
 import (
-	vehicleRepository "GO-RESTful-API/model/vehicle/repository"
+	//i_vehicleRepository "GO-RESTful-API/model/vehicle/repository/i_repository"
+	//vehicleEntity "GO-RESTful-API/model/vehicle/entity"
+	//"GO-RESTful-API/model/vehicle/repository"
+	//"GO-RESTful-API/model/vehicle/repository"
 	"net/http"
 )
 
@@ -15,7 +18,8 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 		// add validator if json file is correct.
 		if true {
 			// create new vehicle
-			vehicleRepository.CreateVehicle(w, r)
+
+			//vehicleRepository.CreateVehicle()
 		} else {
 			//show message couldn't create new vehicle.
 		}
@@ -25,16 +29,18 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 			// use in if:a validator to check for valid car sign ( a func that checks with regex and then return true or false)
 
 			//use function for retreiving vehicle by car lisence plate.
-			vehicleRepository.GetVehicle(w, r)
+			//var vehicle entity.Vehicle = vehicleRepository.GetVehicle("43-PN-JK") // test
+			//fmt.Println(vehicle)
 		} else {
 			//use function to return all vehicles.
-			vehicleRepository.GetVehicles(w, r)
+			//var vehicles vehicleEntity = vehicleRepository.GetVehicles()
+			//fmt.Println(vehicles[0].LicensePlate)
 		}
 	case "PUT":
 		// add validator if json file is correct. and response from db is not null with licenseplate.
 		if true {
 			// update existing  vehicle
-			vehicleRepository.UpdateVehicle(w, r)
+			//vehicleRepository.UpdateVehicle()
 		} else {
 			//show message couldn't update vehicle. maybe validator message?
 		}
@@ -43,7 +49,7 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 		// add validator if json file is correct.
 		if true {
 			// delete new vehicle
-			vehicleRepository.DeleteVehicle(w, r)
+			//vehicleRepository.DeleteVehicle()
 
 		} else {
 			//show message couldn't delete vehicle.
