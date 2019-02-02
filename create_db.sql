@@ -20,5 +20,6 @@ INSERT INTO cars
 	VALUES
 		( '43-PN-JK','Toyota','Corolla','1996-07-25', 87745, 'kilometers', 'manual', '2,0L L4 DOHC 16 valves VVT-iE', 'no'), 
         ( '21-VV-3B','Ford','Escort 95 (Mk6)','1995-01-01', 688937, 'miles', 'automatic', '1.8TD 1.753 cm³ 4-in-lijn 8v 90pk 178Nm', 'yes'),
-        ( '7-BWE-8J','KIA','Picanto','2012-05-22', 87745, 'kilometers', 'manual', '1.0 CVVT R-SportbyKia', 'no');
+        ( '7-BWE-8J','KIA','Picanto','2012-05-22', 87745, 'kilometers', 'manual', '1.0 CVVT R-SportbyKia', 'no'),
+        ( 'ab-12-cd','Nissan','Primera','2000-01-01', 164000, 'kilometers', 'manual', '1.8 Luxury', 'no');
         

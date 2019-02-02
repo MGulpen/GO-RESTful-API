@@ -70,7 +70,7 @@ func (db *mysqlVehicleRepository) fetch(ctx context.Context, query string, args 
 
 //GetVehicle returns a vehicle record from db by license plate
 func (db *mysqlVehicleRepository) GetVehicleByLicensePlate(ctx context.Context, licencePlate string) (*entity.Vehicle, error) {
-	query := `SELECT * FROM cars WHERE license_plate = ?`
+	query := "SELECT * FROM cars WHERE license_plate = ?"
 
 	list, err := db.fetch(ctx, query, licencePlate)
 	if err != nil {
@@ -90,7 +90,7 @@ func (db *mysqlVehicleRepository) GetVehicleByLicensePlate(ctx context.Context, 
 //GetVehicles returns a slice of entity vehicles from db
 func (db *mysqlVehicleRepository) GetVehicles(ctx context.Context) ([]*entity.Vehicle, error) {
 
-	query := `SELECT * FROM cars`
+	query := "SELECT * FROM cars"
 
 	list, err := db.fetch(ctx, query)
 	if err != nil {

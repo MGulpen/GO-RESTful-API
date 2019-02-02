@@ -8,14 +8,40 @@ import (
 	//vehicleEntity "GO-RESTful-API/model/vehicle/entity"
 	//"GO-RESTful-API/model/vehicle/repository"
 	//"GO-RESTful-API/model/vehicle/repository"
+
+	vehicleRepo "GO-RESTful-API/model/vehicle/repository"
+	"context"
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"time"
 )
 
 //Agent func delegates the corresponding method
 func Agent(w http.ResponseWriter, r *http.Request) {
+	dbConn, err := sql.Open(`mysql`, "root:1143@tcp(localhost:3306)/vehicle_db")
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = dbConn.Ping()
+	if err != nil {
+		log.Fatal(err)
+		//os.Exit(1)
+	}
+
+	defer dbConn.Close()
+	repo := vehicleRepo.NewMysqlVehicleRepository(dbConn)
+	c := context.Background()
+	timeoutContext := time.Duration(5) * time.Second
+	ctx, cancel := context.WithTimeout(c, timeoutContext)
+	defer cancel()
+
 	switch r.Method {
 	case "POST":
 		// add validator if json file is correct.
+
 		if true {
 			// create new vehicle
 
@@ -25,16 +51,37 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "GET":
-		if true {
-			// use in if:a validator to check for valid car sign ( a func that checks with regex and then return true or false)
+		urlLicensePlateParam := r.URL.Query()["licenseplate"]
+		if urlLicensePlateParam != nil {
+			list, err := repo.GetVehicleByLicensePlate(ctx, urlLicensePlateParam[0])
+			if err != nil {
+				fmt.Println(err)
+			}
+			jsonObj, err := json.Marshal(list)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 
-			//use function for retreiving vehicle by car lisence plate.
-			//var vehicle entity.Vehicle = vehicleRepository.GetVehicle("43-PN-JK") // test
-			//fmt.Println(vehicle)
+			fmt.Fprintln(w, string(jsonObj))
+
 		} else {
 			//use function to return all vehicles.
-			//var vehicles vehicleEntity = vehicleRepository.GetVehicles()
-			//fmt.Println(vehicles[0].LicensePlate)
+
+			list, err := repo.GetVehicles(ctx)
+
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			jsonObj, err := json.Marshal(list)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Fprintln(w, string(jsonObj))
+
 		}
 	case "PUT":
 		// add validator if json file is correct. and response from db is not null with licenseplate.
