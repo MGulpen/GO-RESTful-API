@@ -5,27 +5,27 @@ A RESTful api made with GO
 I used the program Postman to interact with the API
 
 
-* shows the date/time from carsys
+* Show the date/time from carsys
 ```
 GET: http://localhost:12345/carsys/current-version
 ```
 
-* returns a single vehicle (json) by licenseplate :
+* Return a single vehicle (json) by licenseplate :
 ```
 GET: http://localhost:12345//objects/vehicle?licenseplate=ab-12-cd
 ```
 
-* returns all vehicles (json):
+* Return all vehicles (json):
 ```
 GET: http://localhost:12345//objects/vehicle
 ```
 
-* stores a single vehicle:
+* Store a single vehicle:
 ```
 POST: http://localhost:12345//objects/vehicle
 
 Set the body settings to "raw" and the "text" to "JSON(application/json)"
-body example: 
+Url body example: 
     { "licenseplate":"88-AA-22",
 	"brand":"someCarBrand",
 	"model":"someCarModel",
@@ -41,7 +41,7 @@ body example:
 PUT: http://localhost:12345//objects/vehicle
 
 Set the body settings to "raw" and the "text" to "JSON(application/json)"
-body example: 
+Url body example: 
     { "licenseplate":"88-AA-22",
 	"brand":"updatedCarBrand",
 	"model":"updatedCarModel",
@@ -52,7 +52,7 @@ body example:
 	"engine-type":"2L"}
 ```
 
-* delete a single vehicle by licenseplate (soft delete):
+* Delete a single vehicle by licenseplate (soft delete):
 ```
 DELETE: http://localhost:12345//objects/vehicle?licenseplate=ab-12-cd
 ```
