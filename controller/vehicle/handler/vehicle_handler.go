@@ -54,6 +54,7 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 			//vehicleRepository.CreateVehicle()
 		} else {
 			//show message couldn't create new vehicle.
+			http.Error(w, "JSON object incorrect", http.StatusUnsupportedMediaType)
 		}
 
 	case "GET":
