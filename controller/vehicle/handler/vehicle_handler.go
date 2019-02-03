@@ -109,8 +109,10 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 		}
 	case "PUT":
 		// add validator if json file is correct. and response from db is not null with licenseplate.
+		urlLicensePlateParam := r.URL.Query()["licenseplate"]
 		vehicle := ConvertJsonToContract(r)
-		if validator.ValidateVehicle(vehicle) {
+		vehicle.LicensePlate = urlLicensePlateParam[0]
+		if urlLicensePlateParam != nil && validator.ValidateVehicle(vehicle) {
 			vehicleEntity := &entity.Vehicle{
 				LicensePlate:  vehicle.LicensePlate,
 				Brand:         vehicle.Brand,
