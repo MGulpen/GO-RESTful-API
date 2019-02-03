@@ -17,9 +17,9 @@ type IVehicleRepository interface {
 	GetVehicleByLicensePlate(ctx context.Context, id string) (*entity.Vehicle, error)
 	GetVehicles(ctx context.Context) ([]*entity.Vehicle, error)
 
-	CreateVehicle()
-	UpdateVehicle()
-	DeleteVehicle()
+	CreateVehicle(ctx context.Context, vehicle *entity.Vehicle) error
+	UpdateVehicle(ctx context.Context, vehicle *entity.Vehicle) error
+	DeleteVehicle(ctx context.Context, id string) error
 }
 
 type mysqlVehicleRepository struct {
@@ -101,14 +101,75 @@ func (db *mysqlVehicleRepository) GetVehicles(ctx context.Context) ([]*entity.Ve
 
 }
 
-func (db *mysqlVehicleRepository) CreateVehicle() {
+func (db *mysqlVehicleRepository) CreateVehicle(ctx context.Context, vehicle *entity.Vehicle) error {
 	fmt.Println("Created new vehicle")
+
+	query := `INSERT cars SET license_plate=? , brand=? , model=?, build_date=? , odometer_value=?, odometer_type=?, transmission=?, engine_type=?, retired=?`
+	stmt, err := db.Conn.PrepareContext(ctx, query)
+	if err != nil {
+
+		return err
+	}
+
+	res, err := stmt.ExecContext(ctx, vehicle.LicensePlate, vehicle.Brand, vehicle.Model, vehicle.BuildDate, vehicle.OdometerValue, vehicle.OdometerType, vehicle.Transmission, vehicle.EngineType, vehicle.Retired)
+	if err != nil {
+
+		return err
+	}
+	fmt.Println(res)
+	return nil
 }
 
-func (db *mysqlVehicleRepository) UpdateVehicle() {
+func (db *mysqlVehicleRepository) UpdateVehicle(ctx context.Context, vehicle *entity.Vehicle) error {
 	fmt.Println("Updated vehicle")
+	query := `UPDATE cars set brand=? , model=?, build_date=? , odometer_value=?, odometer_type=?, transmission=?, engine_type=? WHERE license_plate = ? AND retired != ?`
+
+	stmt, err := db.Conn.PrepareContext(ctx, query)
+	if err != nil {
+		return nil
+	}
+
+	res, err := stmt.ExecContext(ctx, vehicle.Brand, vehicle.Model, vehicle.BuildDate, vehicle.OdometerValue, vehicle.OdometerType, vehicle.Transmission, vehicle.EngineType, vehicle.LicensePlate, "yes")
+	if err != nil {
+		return err
+	}
+	affect, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affect != 1 {
+		err = fmt.Errorf("Weird  Behaviour. Total Affected: %d", affect)
+
+		return err
+	}
+
+	return nil
 }
 
-func (db *mysqlVehicleRepository) DeleteVehicle() {
+func (db *mysqlVehicleRepository) DeleteVehicle(ctx context.Context, licencePlate string) error {
 	fmt.Println("Deleted vehicle")
+	query := `UPDATE cars set retired = ? WHERE license_plate = ?`
+
+	stmt, err := db.Conn.PrepareContext(ctx, query)
+	if err != nil {
+		return nil
+	}
+
+	res, err := stmt.ExecContext(ctx, "yes", licencePlate)
+	if err != nil {
+		return err
+	}
+	affect, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affect != 1 {
+		err = fmt.Errorf("Weird  Behaviour. Total Affected: %d", affect)
+
+		return err
+	}
+
+	return nil
 }

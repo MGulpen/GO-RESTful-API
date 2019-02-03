@@ -11,6 +11,7 @@ import (
 
 	contract "GO-RESTful-API/controller/vehicle/contract"
 	vehicleVali "GO-RESTful-API/controller/vehicle/validator"
+	"GO-RESTful-API/model/vehicle/entity"
 	vehicleRepo "GO-RESTful-API/model/vehicle/repository"
 	"io/ioutil"
 
@@ -50,11 +51,27 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 		vehicle := ConvertJsonToContract(r)
 		if validator.ValidateVehicle(vehicle) {
 			// create new vehicle
-			fmt.Println("success")
 			//vehicleRepository.CreateVehicle()
+			vehicleEntity := &entity.Vehicle{
+				LicensePlate:  vehicle.LicensePlate,
+				Brand:         vehicle.Brand,
+				Model:         vehicle.Model,
+				BuildDate:     vehicle.BuildDate,
+				OdometerValue: vehicle.OdometerValue,
+				OdometerType:  vehicle.OdometerType,
+				Transmission:  vehicle.Transmission,
+				EngineType:    vehicle.EngineType,
+				Retired:       "no",
+			}
+
+			err := repo.CreateVehicle(ctx, vehicleEntity)
+			if err != nil {
+				fmt.Println(err)
+			}
+
 		} else {
 			//show message couldn't create new vehicle.
-			http.Error(w, "JSON object incorrect", http.StatusUnsupportedMediaType)
+			http.Error(w, "CreateVehicle-JSON object incorrect", http.StatusUnsupportedMediaType)
 		}
 
 	case "GET":
@@ -92,21 +109,41 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 		}
 	case "PUT":
 		// add validator if json file is correct. and response from db is not null with licenseplate.
-		if true {
+		vehicle := ConvertJsonToContract(r)
+		if validator.ValidateVehicle(vehicle) {
+			vehicleEntity := &entity.Vehicle{
+				LicensePlate:  vehicle.LicensePlate,
+				Brand:         vehicle.Brand,
+				Model:         vehicle.Model,
+				BuildDate:     vehicle.BuildDate,
+				OdometerValue: vehicle.OdometerValue,
+				OdometerType:  vehicle.OdometerType,
+				Transmission:  vehicle.Transmission,
+				EngineType:    vehicle.EngineType,
+			}
 			// update existing  vehicle
 			//vehicleRepository.UpdateVehicle()
+			err := repo.UpdateVehicle(ctx, vehicleEntity)
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else {
 			//show message couldn't update vehicle. maybe validator message?
+			http.Error(w, "UpdateVehicle-JSON object incorrect", http.StatusUnsupportedMediaType)
 		}
 
 	case "DELETE":
 		// add validator if json file is correct.
-		if true {
+		urlLicensePlateParam := r.URL.Query()["licenseplate"]
+		if urlLicensePlateParam != nil && validator.ValidateLicensePlate(urlLicensePlateParam[0]) {
 			// delete new vehicle
 			//vehicleRepository.DeleteVehicle()
+			repo.DeleteVehicle(ctx, urlLicensePlateParam[0])
 
 		} else {
 			//show message couldn't delete vehicle.
+			http.Error(w, "DeleteVehicle-JSON object incorrect", http.StatusUnsupportedMediaType)
+
 		}
 	default:
 		http.Error(w, "Error, invalid request method - only supporting: GET, POST, PUT and DELETE", http.StatusNotImplemented)
