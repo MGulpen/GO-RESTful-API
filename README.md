@@ -12,17 +12,17 @@ GET: http://localhost:12345/carsys/current-version
 
 * Return a single vehicle (json) by licenseplate :
 ```
-GET: http://localhost:12345//objects/vehicle?licenseplate=ab-12-cd
+GET: http://localhost:12345/objects/vehicle?licenseplate=ab-12-cd
 ```
 
 * Return all vehicles (json):
 ```
-GET: http://localhost:12345//objects/vehicle
+GET: http://localhost:12345/objects/vehicle
 ```
 
 * Store a single vehicle:
 ```
-POST: http://localhost:12345//objects/vehicle
+POST: http://localhost:12345/objects/vehicle
 
 Set the body settings to "raw" and the "text" to "JSON(application/json)"
 Url body example: 
@@ -38,12 +38,11 @@ Url body example:
 
 * Update a single vehicle:
 ```
-PUT: http://localhost:12345//objects/vehicle
+PUT: http://localhost:12345/objects/vehicle?licenseplate=ab-12-cd
 
 Set the body settings to "raw" and the "text" to "JSON(application/json)"
 Url body example: 
-    { "licenseplate":"88-AA-22",
-	"brand":"updatedCarBrand",
+    { "brand":"updatedCarBrand",
 	"model":"updatedCarModel",
 	"build-date":"2001-01-01",
 	"odometer-value":0,
@@ -54,5 +53,5 @@ Url body example:
 
 * Delete a single vehicle by licenseplate (soft delete):
 ```
-DELETE: http://localhost:12345//objects/vehicle?licenseplate=ab-12-cd
+DELETE: http://localhost:12345/objects/vehicle?licenseplate=ab-12-cd
 ```
