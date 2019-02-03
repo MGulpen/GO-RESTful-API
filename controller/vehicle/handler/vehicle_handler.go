@@ -9,7 +9,11 @@ import (
 	//"GO-RESTful-API/model/vehicle/repository"
 	//"GO-RESTful-API/model/vehicle/repository"
 
+	contract "GO-RESTful-API/controller/vehicle/contract"
+	vehicleVali "GO-RESTful-API/controller/vehicle/validator"
 	vehicleRepo "GO-RESTful-API/model/vehicle/repository"
+	"io/ioutil"
+
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -38,13 +42,15 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(c, timeoutContext)
 	defer cancel()
 
+	validator := vehicleVali.NewVehicleValidator()
+
 	switch r.Method {
 	case "POST":
 		// add validator if json file is correct.
-
-		if true {
+		vehicle := ConvertJsonToContract(r)
+		if validator.ValidateVehicle(vehicle) {
 			// create new vehicle
-
+			fmt.Println("success")
 			//vehicleRepository.CreateVehicle()
 		} else {
 			//show message couldn't create new vehicle.
@@ -104,4 +110,28 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Error, invalid request method - only supporting: GET, POST, PUT and DELETE", http.StatusNotImplemented)
 	}
+}
+
+//CurrentVersion presents the date/time stamp from http://nl.carsys.online/version.json
+func ConvertJsonToContract(r *http.Request) *contract.VehicleContract {
+
+	//the defer tag forces the function to be executed at the end of the function.
+	//defer resp.Body.Close()
+
+	//using io utils to read everything in the body.
+	body, bodyErr := ioutil.ReadAll(r.Body)
+	if bodyErr != nil {
+		// handle error
+		panic(bodyErr)
+	}
+	//using json unmarshal to convert the incoming json object.
+	var vehicleContract contract.VehicleContract
+	jsonErr := json.Unmarshal(body, &vehicleContract)
+	if jsonErr != nil {
+		// handle error
+		panic(jsonErr)
+	}
+	return &vehicleContract
+	//print the date/time stamp in the browser.
+	//fmt.Fprintf(w, carsysResponse.BuildDate)
 }

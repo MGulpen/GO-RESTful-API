@@ -21,6 +21,7 @@ func CurrentVersion(w http.ResponseWriter, r *http.Request) {
 
 	//using io utils to read everything in the body.
 	body, bodyErr := ioutil.ReadAll(resp.Body)
+	fmt.Println(resp.Body)
 	if bodyErr != nil {
 		// handle error
 		panic(bodyErr)

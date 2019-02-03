@@ -26,7 +26,7 @@ type mysqlVehicleRepository struct {
 	Conn *sql.DB
 }
 
-// NewMysqlArticleRepository will create an object that represent the article.Repository interface
+// NewMysqlVehicleRepository will create an object that represent the IVehicleRepository interface
 func NewMysqlVehicleRepository(Conn *sql.DB) IVehicleRepository {
 
 	return &mysqlVehicleRepository{Conn}
