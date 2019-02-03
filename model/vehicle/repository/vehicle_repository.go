@@ -1,13 +1,12 @@
 package repository
 
 import (
-
-	//github.com/go-sql-driver/mysql is needed as anominous mysql driver plugin
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 
+	//github.com/go-sql-driver/mysql is needed as anominous mysql driver plugin
 	_ "github.com/go-sql-driver/mysql"
 
 	"GO-RESTful-API/model/vehicle/entity"
@@ -70,9 +69,9 @@ func (db *mysqlVehicleRepository) fetch(ctx context.Context, query string, args 
 
 //GetVehicle returns a vehicle record from db by license plate
 func (db *mysqlVehicleRepository) GetVehicleByLicensePlate(ctx context.Context, licencePlate string) (*entity.Vehicle, error) {
-	query := "SELECT * FROM cars WHERE license_plate = ?"
+	query := "SELECT * FROM cars WHERE license_plate = ? AND retired != ?"
 
-	list, err := db.fetch(ctx, query, licencePlate)
+	list, err := db.fetch(ctx, query, licencePlate, "yes")
 	if err != nil {
 		return nil, err
 	}
@@ -90,9 +89,9 @@ func (db *mysqlVehicleRepository) GetVehicleByLicensePlate(ctx context.Context, 
 //GetVehicles returns a slice of entity vehicles from db
 func (db *mysqlVehicleRepository) GetVehicles(ctx context.Context) ([]*entity.Vehicle, error) {
 
-	query := "SELECT * FROM cars"
+	query := "SELECT * FROM cars WHERE retired != ?"
 
-	list, err := db.fetch(ctx, query)
+	list, err := db.fetch(ctx, query, "yes")
 	if err != nil {
 		return nil, err
 	}
@@ -101,6 +100,7 @@ func (db *mysqlVehicleRepository) GetVehicles(ctx context.Context) ([]*entity.Ve
 
 }
 
+//CreateVehicle stores a new vehicle record into the db.
 func (db *mysqlVehicleRepository) CreateVehicle(ctx context.Context, vehicle *entity.Vehicle) error {
 	fmt.Println("Created new vehicle")
 
@@ -120,6 +120,7 @@ func (db *mysqlVehicleRepository) CreateVehicle(ctx context.Context, vehicle *en
 	return nil
 }
 
+//UpdateVehicle updates an existing vehicle record
 func (db *mysqlVehicleRepository) UpdateVehicle(ctx context.Context, vehicle *entity.Vehicle) error {
 	fmt.Println("Updated vehicle")
 	query := `UPDATE cars set brand=? , model=?, build_date=? , odometer_value=?, odometer_type=?, transmission=?, engine_type=? WHERE license_plate = ? AND retired != ?`
@@ -147,6 +148,7 @@ func (db *mysqlVehicleRepository) UpdateVehicle(ctx context.Context, vehicle *en
 	return nil
 }
 
+//DeleteVehicle soft deletes an existing vehicle record
 func (db *mysqlVehicleRepository) DeleteVehicle(ctx context.Context, licencePlate string) error {
 	fmt.Println("Deleted vehicle")
 	query := `UPDATE cars set retired = ? WHERE license_plate = ?`

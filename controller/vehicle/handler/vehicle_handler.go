@@ -1,14 +1,6 @@
 package handler
 
-// vehicleEntity "GO-RESTful-API/model/vehicle/entity"
-// vehicleFactory "GO-RESTful-API/model/vehicle/factory"
-// vehicleRepository "GO-RESTful-API/model/vehicle/repository"
 import (
-	//i_vehicleRepository "GO-RESTful-API/model/vehicle/repository/i_repository"
-	//vehicleEntity "GO-RESTful-API/model/vehicle/entity"
-	//"GO-RESTful-API/model/vehicle/repository"
-	//"GO-RESTful-API/model/vehicle/repository"
-
 	contract "GO-RESTful-API/controller/vehicle/contract"
 	vehicleVali "GO-RESTful-API/controller/vehicle/validator"
 	"GO-RESTful-API/model/vehicle/entity"
@@ -24,7 +16,7 @@ import (
 	"time"
 )
 
-//Agent func delegates the corresponding method
+//Agent func executes method depending on the http GET, POST, PUT and DELETE methods
 func Agent(w http.ResponseWriter, r *http.Request) {
 	dbConn, err := sql.Open(`mysql`, "root:1143@tcp(localhost:3306)/vehicle_db")
 	if err != nil {
@@ -33,11 +25,11 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 	err = dbConn.Ping()
 	if err != nil {
 		log.Fatal(err)
-		//os.Exit(1)
 	}
 
 	defer dbConn.Close()
 	repo := vehicleRepo.NewMysqlVehicleRepository(dbConn)
+
 	c := context.Background()
 	timeoutContext := time.Duration(5) * time.Second
 	ctx, cancel := context.WithTimeout(c, timeoutContext)
@@ -45,13 +37,16 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 
 	validator := vehicleVali.NewVehicleValidator()
 
+	//determine which http method: GET, POST, PUT or DELETE
 	switch r.Method {
 	case "POST":
-		// add validator if json file is correct.
-		vehicle := ConvertJsonToContract(r)
+		// convert json obj to vehicle contract
+		vehicle := ConvertJSONToContract(r)
+
+		//validate the vehicle contract obj if its correct
 		if validator.ValidateVehicle(vehicle) {
-			// create new vehicle
-			//vehicleRepository.CreateVehicle()
+
+			// create new entity.vehicle for vehicle repository
 			vehicleEntity := &entity.Vehicle{
 				LicensePlate:  vehicle.LicensePlate,
 				Brand:         vehicle.Brand,
@@ -64,6 +59,7 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 				Retired:       "no",
 			}
 
+			// use repository to create new vehicle
 			err := repo.CreateVehicle(ctx, vehicleEntity)
 			if err != nil {
 				fmt.Println(err)
@@ -75,43 +71,51 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "GET":
+		//get licenseplate value from url param
 		urlLicensePlateParam := r.URL.Query()["licenseplate"]
 		if urlLicensePlateParam != nil {
+			//get a single vehicle from repository by licenseplate
 			list, err := repo.GetVehicleByLicensePlate(ctx, urlLicensePlateParam[0])
 			if err != nil {
 				fmt.Println(err)
 			}
+			//convert vehicle to json obj
 			jsonObj, err := json.Marshal(list)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
+			//print json obj
 			fmt.Fprintln(w, string(jsonObj))
 
 		} else {
-			//use function to return all vehicles.
-
+			//get all vehicles from repository.
 			list, err := repo.GetVehicles(ctx)
-
 			if err != nil {
 				fmt.Println(err)
 			}
 
+			//convert vehicles to json obj
 			jsonObj, err := json.Marshal(list)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
+			//print json obj
 			fmt.Fprintln(w, string(jsonObj))
 
 		}
 	case "PUT":
-		// add validator if json file is correct. and response from db is not null with licenseplate.
+		//get licenseplate value from url param
 		urlLicensePlateParam := r.URL.Query()["licenseplate"]
-		vehicle := ConvertJsonToContract(r)
+		// convert json obj to vehicle contract
+		vehicle := ConvertJSONToContract(r)
+		//add licenseplate value from url, to the vehicle contract obj
 		vehicle.LicensePlate = urlLicensePlateParam[0]
+
+		//validate licenseplate value from url and the vehicle contract obj
 		if urlLicensePlateParam != nil && validator.ValidateVehicle(vehicle) {
 			vehicleEntity := &entity.Vehicle{
 				LicensePlate:  vehicle.LicensePlate,
@@ -123,28 +127,31 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 				Transmission:  vehicle.Transmission,
 				EngineType:    vehicle.EngineType,
 			}
-			// update existing  vehicle
-			//vehicleRepository.UpdateVehicle()
+
+			// use repository to update new vehicle
 			err := repo.UpdateVehicle(ctx, vehicleEntity)
 			if err != nil {
 				fmt.Println(err)
 			}
+
 		} else {
 			//show message couldn't update vehicle. maybe validator message?
 			http.Error(w, "UpdateVehicle-JSON object incorrect", http.StatusUnsupportedMediaType)
 		}
 
 	case "DELETE":
-		// add validator if json file is correct.
+		//get licenseplate value from url param
 		urlLicensePlateParam := r.URL.Query()["licenseplate"]
+
+		//validate licenseplate value from url
 		if urlLicensePlateParam != nil && validator.ValidateLicensePlate(urlLicensePlateParam[0]) {
-			// delete new vehicle
-			//vehicleRepository.DeleteVehicle()
+
+			// use repository to update new vehicle
 			repo.DeleteVehicle(ctx, urlLicensePlateParam[0])
 
 		} else {
 			//show message couldn't delete vehicle.
-			http.Error(w, "DeleteVehicle-JSON object incorrect", http.StatusUnsupportedMediaType)
+			http.Error(w, "DeleteVehicle-lisenceplate incorrect", http.StatusNotFound)
 
 		}
 	default:
@@ -152,11 +159,8 @@ func Agent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//CurrentVersion presents the date/time stamp from http://nl.carsys.online/version.json
-func ConvertJsonToContract(r *http.Request) *contract.VehicleContract {
-
-	//the defer tag forces the function to be executed at the end of the function.
-	//defer resp.Body.Close()
+//ConvertJSONToContract converts the json obj from the http.body to a vehicle contract obj
+func ConvertJSONToContract(r *http.Request) *contract.VehicleContract {
 
 	//using io utils to read everything in the body.
 	body, bodyErr := ioutil.ReadAll(r.Body)
@@ -172,6 +176,4 @@ func ConvertJsonToContract(r *http.Request) *contract.VehicleContract {
 		panic(jsonErr)
 	}
 	return &vehicleContract
-	//print the date/time stamp in the browser.
-	//fmt.Fprintf(w, carsysResponse.BuildDate)
 }
